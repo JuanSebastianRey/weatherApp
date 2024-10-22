@@ -1,21 +1,31 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Search, Sun, Moon, ChevronDown } from "lucide-react";
 
+// ! IMPORTANT: Replace with your own API key before deploying
+// * This component is a weather application that displays current weather and forecasts
+// * It uses the WeatherAPI.com service for data
 export default function WeatherApp() {
+  // * State management for the application
   const [weather, setWeather] = useState(null);
   const [activeTab, setActiveTab] = useState("today");
   const [city, setCity] = useState("Floridablanca");
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  
+  // ! API key should be moved to environment variables
   const API_KEY = "a473d68ccfb845cea94140210242110";
+  
+  // * Refs for DOM manipulation
   const mainRef = useRef(null);
   const searchInputRef = useRef(null);
 
+  // * Fetch weather data when city changes
   useEffect(() => {
     fetchWeather(city);
   }, [city]);
 
+  // * Handle scroll events for header animations
   useEffect(() => {
     const handleScroll = () => {
       if (mainRef.current) {
@@ -28,6 +38,7 @@ export default function WeatherApp() {
       mainElement.addEventListener("scroll", handleScroll);
     }
 
+    // ? Cleanup function to remove event listener
     return () => {
       if (mainElement) {
         mainElement.removeEventListener("scroll", handleScroll);
@@ -35,12 +46,16 @@ export default function WeatherApp() {
     };
   }, []);
 
+  // * Auto-focus search input when search is opened
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
       searchInputRef.current.focus();
     }
   }, [isSearchOpen]);
 
+  // * Fetch weather data from the API
+  // TODO: Add error handling for network failures
+  // TODO: Add loading state management
   const fetchWeather = (location) => {
     fetch(
       `http://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${location}&days=10`,
@@ -58,6 +73,7 @@ export default function WeatherApp() {
       });
   };
 
+  // * Handle search form submission
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim() !== "") {
@@ -67,6 +83,7 @@ export default function WeatherApp() {
     }
   };
 
+  // * Toggle search input visibility
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
     if (!isSearchOpen) {
@@ -74,6 +91,7 @@ export default function WeatherApp() {
     }
   };
 
+  // * Loading state handling
   if (!weather) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -82,8 +100,12 @@ export default function WeatherApp() {
     );
   }
 
+  // * Render the today's weather view
+  // TODO: Add precipitation probability graph
+  // TODO: Add wind speed and humidity information
   const renderTodayView = () => (
     <>
+      {/* Hourly forecast section */}
       <div className="flex justify-between mb-8 overflow-x-auto">
         {weather.forecast.forecastday[0].hour.slice(0, 6).map((hour, index) => (
           <div key={index} className="text-center flex-shrink-0 mx-2">
@@ -100,10 +122,12 @@ export default function WeatherApp() {
         ))}
       </div>
 
+      {/* Day forecast section */}
       <div className="mb-8">
         <h3 className="font-semibold mb-2">Day forecast</h3>
       </div>
 
+      {/* Rain probability section */}
       <div className="mb-8">
         <h3 className="font-semibold mb-2">Chance of rain</h3>
         {weather.forecast.forecastday[0].hour
@@ -126,6 +150,7 @@ export default function WeatherApp() {
           ))}
       </div>
 
+      {/* Sunrise/Sunset section */}
       <div className="flex justify-between">
         <div className="flex items-center">
           <Sun className="w-6 h-6 mr-2 text-yellow-500" />
@@ -149,6 +174,7 @@ export default function WeatherApp() {
     </>
   );
 
+  // * Render the 10-day forecast view
   const renderTenDayView = () => (
     <div className="space-y-4">
       {weather.forecast.forecastday.map((day, index) => (
@@ -191,17 +217,20 @@ export default function WeatherApp() {
     </div>
   );
 
+  // * Main component render
   return (
     <main
       ref={mainRef}
       className="bg-purple-100 min-h-screen text-gray-800 overflow-y-auto"
     >
+      {/* Header section with city, temperature, and search */}
       <div
         className={`sticky top-0 z-10 bg-purple-100 transition-all duration-300 ease-in-out ${
           isScrolled ? "py-2" : "py-6"
         }`}
       >
         <div className="max-w-md mx-auto px-6">
+          {/* City and search bar */}
           <div
             className={`flex justify-between items-center transition-all duration-300 ease-in-out ${
               isScrolled ? "mb-0" : "mb-4"
@@ -225,6 +254,7 @@ export default function WeatherApp() {
                 </div>
               )}
             </div>
+            {/* Search functionality */}
             <div className="relative">
               {isSearchOpen ? (
                 <form onSubmit={handleSearch} className="flex items-center">
@@ -253,6 +283,7 @@ export default function WeatherApp() {
             </div>
           </div>
 
+          {/* Current weather information */}
           <div
             className={`text-center transition-all duration-300 ease-in-out ${
               isScrolled
@@ -279,8 +310,10 @@ export default function WeatherApp() {
         </div>
       </div>
 
+      {/* Main content area */}
       <div className="max-w-md mx-auto px-6 pb-6">
         <div className="bg-white rounded-3xl p-6 mb-8 shadow-lg">
+          {/* Tab navigation */}
           <div className="flex justify-between mb-4">
             <button
               className={`font-semibold ${
@@ -308,6 +341,7 @@ export default function WeatherApp() {
             </button>
           </div>
 
+          {/* Tab content */}
           {activeTab === "today" && renderTodayView()}
           {activeTab === "10days" && renderTenDayView()}
         </div>
