@@ -58,7 +58,7 @@ export default function WeatherApp() {
   // TODO: Add loading state management
   const fetchWeather = (location) => {
     fetch(
-      `http://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${location}&days=10`,
+      `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${location}&days=10`,
       {
         method: "GET",
         headers: {
